@@ -1,0 +1,113 @@
+\documentclass{article}
+\usepackage[main,nonanonymous]{neurips_2026}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{booktabs}
+\usepackage{xcolor}
+\usepackage{microtype}
+\usepackage{amsmath}
+\usepackage{array}
+
+\title{Parkinson's-Associated Voice Patterns: A Participant-Level Comparison of Acoustic Features and Deep Audio Representations}
+\author{
+  Poorav Rawat \\
+  Department of Computer Science \\
+  \texttt{prawat2@gsu.edu}
+  \And
+  Arhaan Keshwani \\
+  Department of Computer Science \\
+  \texttt{akeshwani2@gsu.edu}
+}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Speech can change with Parkinson's disease (PD), motivating research on whether short voice recordings contain detectable disease-associated patterns. We propose a participant-level comparison of three approaches: a classifier trained on acoustic measurements, a compact convolutional network trained on log-Mel spectrograms, and a linear classifier on frozen pretrained speech embeddings. The primary study will use sustained-vowel recordings from the mPower cohort if controlled access to raw audio and participant identifiers is granted. A feature-only UCI dataset provides a feasible fallback but cannot support the proposed raw-audio comparisons. Participants, rather than recordings, will be separated across data partitions; evaluation will report participant-level discrimination and uncertainty. This document specifies planned experiments, anticipated constraints, and an educational demonstration. It reports no trained model, measured performance, or clinical validation.
+\end{abstract}
+
+\section{Introduction and research question}
+PD can affect voice production, including phonatory stability and loudness. Sustained phonation provides a relatively standardized speech task, while variation in recording conditions, demographics, medication, and self-reported labels complicates interpretation. The mPower study contains smartphone recordings of up to ten seconds of sustained ``Aaaaah'' phonation, along with participant-reported information \citep{bot2016}. Prior work has studied both conventional vocal measurements and multiple recording types for PD-related classification \citep{sakar2013}. Pretrained speech encoders offer a practical way to test whether learned representations add value with limited labeled data \citep{baevski2020}.
+
+\textbf{Research question.} Can models distinguish PD-associated from control sustained-vowel recordings from unseen participants, and do spectrogram or frozen speech representations improve participant-level discrimination over acoustic features under the same cohort and split? Improvement is a hypothesis, not an expected empirical result. The target is the dataset's PD status label, not a clinical diagnosis from voice alone.
+
+\section{Data and eligibility}
+\subsection{Primary raw-audio study: mPower}
+The primary data source is the mPower voice activity \citep{bot2016}. Its data include smartphone audio and participant-linked metadata; access requires a verified Synapse profile, certification, an intended data-use statement, and agreement to the conditions of use. The research team will request access before finalizing the cohort and will follow the approved use terms. Both UCI alternatives are distributed under CC BY 4.0; mPower has separate controlled-access conditions. The label will be the participant's reported professional diagnosis status when available; participants with missing or uncertain status will be excluded rather than assigned a control label. This self-report remains distinct from an independently adjudicated clinical diagnosis.
+
+We will retain sustained-vowel files with usable participant IDs and sufficient voiced audio, record exclusion counts and reasons, and exclude the activity countdown. The same eligible participants and recordings will be used for every model. We will document participant and recording counts by class, recording length, demographic coverage where permitted, and any restrictions on redistribution. No exact sample size is asserted before access and cohort construction.
+
+\subsection{Feature-only fallback}
+If raw-audio access is delayed, the fallback is the UCI Parkinson Dataset with replicated acoustic features: 240 feature rows from 80 participants, with three repeated /a/ recordings per person and 40 participants with PD \citep{uci489}. Its subject ID permits grouped evaluation, but its released data are acoustic features rather than waveforms. Accordingly, the fallback will compare a regularized logistic regression with a small multilayer perceptron (MLP); it will \emph{not} report spectrogram-CNN or pretrained-audio results. A second UCI dataset contains multiple speech-task features but is likewise not an interchangeable raw-audio source \citep{sakar2013,uci301}. Cross-dataset numerical comparisons will not be interpreted as architecture effects.
+
+\section{Proposed methodology}
+\subsection{Splitting and signal processing}
+For mPower, we propose a class-stratified participant split of approximately 70\% training, 15\% validation, and 15\% held-out testing, with all recordings and derived clips from one participant assigned to the same split. We will fix and publish the random seed and participant allocation procedure, subject to data-sharing rules. On the training set, we will choose a maximum number of recordings per participant to limit dominance by frequent contributors. Model selection and threshold choice will use validation data only; the test partition will be opened once for final comparison.
+
+We will decode and resample raw recordings consistently, remove countdown audio, identify usable voiced intervals, and standardize the analyzed duration without using test-set statistics. We will compute log-Mel spectrograms for the CNN and pitch, jitter, shimmer, harmonic-to-noise ratio, and MFCC summary statistics for the acoustic model. Failed pitch extraction will be flagged and handled using training-fitted imputation. Standardization, imputation, and any feature selection will be fit exclusively on the training fold. For frozen embeddings, the same processed audio will be passed to a published speech encoder at its required sample rate, then temporally pooled. Preprocessing will be documented with exact library and checkpoint versions when implementation begins.
+
+\subsection{Models and controlled comparison}
+\begin{table}[t]
+\caption{Planned models. Audio-dependent rows run only if raw files are accessible.}
+\label{tab:models}
+\centering
+\small
+\begin{tabular}{p{0.19\linewidth}p{0.43\linewidth}p{0.28\linewidth}}
+\toprule
+Model & Input and classifier & Role \\
+\midrule
+Acoustic baseline & Pitch and perturbation measures plus MFCC summaries; regularized logistic regression; optional small MLP & Interpretable feature reference \\
+Log-Mel CNN & Fixed-duration log-Mel image; two or three convolution blocks, global pooling, sigmoid output & Lightweight learned audio features \\
+Frozen encoder & Pooled wav2vec 2.0 embeddings; regularized linear classification head & Transfer-learning comparison \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+The CNN and MLP will use binary cross-entropy and early stopping on validation participant-level AUROC. The linear models will use regularization selected on validation data. The frozen encoder avoids end-to-end fine-tuning unless both data volume and compute permit a clearly marked extension. For audio augmentation, we will initially consider small changes in gain and mild background noise on \emph{training recordings only}. Pitch shifting and time stretching can alter clinically relevant cues and will be considered only as sensitivity analyses, never assumed harmless. Hyperparameter ranges, optimizers, batch sizes, epochs, and compute time will be recorded in the final report rather than invented in this proposal.
+
+\subsection{Evaluation and uncertainty}
+Each recording will receive a model score; scores from the same participant will be averaged before primary evaluation. The primary comparison will be participant-level area under the ROC curve (AUROC). Secondary outcomes will include participant-level precision, recall, F1, balanced accuracy, confusion matrices, and sensitivity at a prespecified or validation-selected threshold. We will report class prevalence and 95\% confidence intervals from bootstrap resampling of \emph{participants}, with paired resamples for model differences. Scores will only be called calibrated probabilities after a validation-set calibration check; otherwise the demo will display a model score without diagnostic language. If enough metadata and sample size are available, we will examine performance by age/sex strata and device or recording conditions, and report subgroup denominators and uncertainty. Embedding plots using PCA or UMAP are exploratory visualizations, not evidence of clinically distinct clusters.
+
+For the 80-participant feature-only fallback, we will use stratified grouped outer cross-validation, choosing preprocessing and hyperparameters within the training participants of each outer fold. Results and uncertainty will be summarized across held-out participant predictions. This gives a feature-model comparison but does not answer whether learned \emph{audio} features beat handcrafted ones.
+
+\section{Expected contribution, feasibility, and demonstration}
+The main output will be a reproducible protocol and an empirical comparison if suitable data access is obtained. The planned work fits a class project by using fixed-length clips, a small CNN, and a frozen speech encoder rather than training a large speech model. A compact feature-only experiment is available if approval or compute is limiting. No performance threshold or superiority result is promised.
+
+The proposed educational demo will show a waveform and spectrogram for a permitted sample, run the trained classifier, and display an experimental model score with a statement that it cannot diagnose PD. Uploads, if implemented, will be processed without retaining user audio by default; no participant recordings or identifiable examples from controlled-access data will be published in the demo. The final demo scope will depend on model performance and dataset-use permissions.
+
+\section{Limitations and responsible use}
+PD status in a mobile cohort may be self-reported, and a classifier can exploit age, sex, microphone, environment, or recording habits instead of disease-specific vocal changes. Sustained vowels capture only one aspect of speech; within-cohort results cannot establish screening utility in new populations or for other neurological and voice conditions. Repeated recordings increase the apparent sample count without increasing the number of independent participants. Limited subgroup sizes may prevent reliable fairness claims. False positives may cause anxiety and false negatives may create misplaced reassurance. Therefore, the model and demonstration will be framed as research tools, with no recommendation for individual medical decisions. We will honor data access and consent restrictions, minimize retained audio, and seek institutional guidance on secondary analysis and any collection of new demo recordings.
+
+\begin{thebibliography}{9}
+\bibitem[Baevski et~al.(2020)]{baevski2020}
+Baevski, A., Zhou, Y., Mohamed, A., and Auli, M. (2020).
+Wav2vec 2.0: A framework for self-supervised learning of speech representations.
+\emph{Advances in Neural Information Processing Systems}, 33.
+\url{https://papers.neurips.cc/paper_files/paper/2020/hash/92d1e1eb1cd6f9fba3227870bb6d7f07-Abstract.html}.
+
+\bibitem[Bot et~al.(2016)]{bot2016}
+Bot, B.~M. et~al. (2016).
+The mPower study, Parkinson disease mobile data collected using ResearchKit.
+\emph{Scientific Data}, 3, 160011.
+\url{https://doi.org/10.1038/sdata.2016.11}.
+
+\bibitem[Sakar et~al.(2013)]{sakar2013}
+Sakar, B.~E., Isenkul, M.~E., Sakar, C.~O., Sertbas, A., Gurgen, F., Delil, S., Apaydin, H., and Kursun, O. (2013).
+Collection and analysis of a Parkinson speech dataset with multiple types of sound recordings.
+\emph{IEEE Journal of Biomedical and Health Informatics}, 17(4), 828--834.
+\url{https://archive.ics.uci.edu/dataset/301/parkinson+speech+dataset+with+multiple+types+of+sound+recordings}.
+
+\bibitem[UCI(2014)]{uci301}
+UCI Machine Learning Repository (2014).
+Parkinson speech dataset with multiple types of sound recordings.
+\url{https://archive.ics.uci.edu/dataset/301/parkinson+speech+dataset+with+multiple+types+of+sound+recordings}.
+
+\bibitem[UCI(2019)]{uci489}
+UCI Machine Learning Repository (2019).
+Parkinson dataset with replicated acoustic features.
+\url{https://archive.ics.uci.edu/dataset/489/parkinson+dataset+with+replicated+acoustic+features}.
+\end{thebibliography}
+
+\end{document}
