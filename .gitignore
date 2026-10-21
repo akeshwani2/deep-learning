@@ -1,0 +1,116 @@
+# macOS and Windows metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Editors and IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Python bytecode and package artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg
+*.egg-info/
+.eggs/
+build/
+dist/
+
+# Python environments
+.venv/
+venv/
+env/
+ENV/
+
+# Test, type-check, lint, and coverage caches
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.tox/
+.nox/
+.coverage
+.coverage.*
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Local configuration, credentials, and secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+credentials/
+secrets/
+
+# Restricted and local datasets
+data/
+datasets/
+raw_data/
+derived_data/
+uploads/
+temp_uploads/
+
+# Experiment outputs, caches, and tracking services
+artifacts/
+outputs/
+results/
+cache/
+.cache/
+runs/
+wandb/
+mlruns/
+lightning_logs/
+tensorboard/
+
+# Model checkpoints and serialized intermediate arrays
+checkpoints/
+models/
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+*.onnx
+*.joblib
+*.pkl
+*.pickle
+*.npy
+*.npz
+*.h5
+*.hdf5
+
+# Raw audio should stay outside version control
+*.wav
+*.flac
+*.mp3
+*.m4a
+*.aac
+*.ogg
+
+# Logs and temporary files
+*.log
+*.tmp
+*.temp
+
+# LaTeX build products (PDF deliverables remain trackable)
+*.aux
+*.bbl
+*.bcf
+*.blg
+*.fdb_latexmk
+*.fls
+*.lof
+*.lot
+*.nav
+*.out
+*.run.xml
+*.snm
+*.synctex.gz
+*.toc
+*.vrb
