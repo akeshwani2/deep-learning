@@ -1,4 +1,7 @@
-"""Draw waveform + log-Mel spectrogram of one cleaned /a/ clip per group -> Midpoint_Report/clips.pdf."""
+"""Draw waveform + log-Mel spectrogram of one cleaned /a/ clip per group.
+
+Writes Midpoint_Report/clips.pdf.
+"""
 
 import librosa
 import matplotlib.pyplot as plt
@@ -6,7 +9,8 @@ import numpy as np
 import pandas as pd
 
 v = pd.read_csv("data/derived/vowels.csv")
-clips = v[(v.task == "VA") & (v.rep == 1) & (v.sex == "F") & (v.source_sr == 16000)].groupby("label").first()
+is_clip = (v.task == "VA") & (v.rep == 1) & (v.sex == "F") & (v.source_sr == 16000)
+clips = v[is_clip].groupby("label").first()
 
 fig, axes = plt.subplots(2, 2, figsize=(7, 3.2), sharex=True, height_ratios=[1, 2])
 for col, (label, title) in enumerate([(0, "Healthy control"), (1, "PD")]):

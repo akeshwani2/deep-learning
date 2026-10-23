@@ -23,7 +23,8 @@ SR = 16000
 LENGTH = 3 * SR
 
 df = pd.read_csv(MANIFEST)
-df = df[df.is_vowel].merge(pd.read_csv(FOLDS)[["person_id", "fold"]], on="person_id", validate="many_to_one")
+folds = pd.read_csv(FOLDS)[["person_id", "fold"]]
+df = df[df.is_vowel].merge(folds, on="person_id", validate="many_to_one")
 OUT_DIR.mkdir(parents=True, exist_ok=True)
 
 kept = []

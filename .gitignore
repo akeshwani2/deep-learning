@@ -44,6 +44,8 @@ htmlcov/
 .env
 .env.*
 !.env.example
+.synapseConfig
+*.token
 *.pem
 *.key
 credentials/
@@ -54,6 +56,11 @@ data/
 datasets/
 raw_data/
 derived_data/
+participant_allocations/
+splits/
+folds/
+*participant_allocation*
+*fold_allocation*
 uploads/
 temp_uploads/
 

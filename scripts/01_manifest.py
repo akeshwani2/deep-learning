@@ -14,7 +14,8 @@ RAW = Path("data/raw/italian_pvs/italian_parkinson")
 OUT = Path("data/derived/manifest.csv")
 GROUPS = {"22 Elderly Healthy Control": 0, "28 People with Parkinson's disease": 1}
 
-# e.g. VA1 NMIICNOO 52 M 100220171136 .wav -> task, rep, scrambled initials, birth year, sex, date+time
+# e.g. VA1 NMIICNOO 52 M 100220171136 .wav
+# -> task, rep, scrambled initials, birth year, sex, date+time
 NAME = re.compile(r"^(VA|VE|VI|VO|VU|B|D|FB|PR)(\d)([A-Za-z_]{7,8})(\d{2})([MF])(\d+)\.wav$")
 
 rows = []

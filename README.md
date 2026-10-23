@@ -1,13 +1,44 @@
-# Parkinson's voice patterns
+# Parkinson's-Associated Voice Patterns
 
-Research comparison of acoustic features, a log-Mel CNN, and frozen wav2vec 2.0 embeddings for telling Parkinson's (PD) from healthy sustained-vowel recordings. Not a diagnostic tool.
+This repository implements a participant-level research comparison of
+Parkinson's-associated voice features. It is not a diagnostic or screening
+product.
 
-## Data setup
+The active operating mode is the feature-only fallback using UCI dataset 489.
+The mode decision and its scope are recorded in
+[`docs/decision-log.md`](docs/decision-log.md).
 
-Needs [uv](https://docs.astral.sh/uv/). Run from the repo root, in order:
+## Setup
+
+```bash
+UV_CACHE_DIR=/tmp/parkinsons-voice-uv-cache uv sync --frozen --all-groups
+```
+
+## Freeze and verify the Mode B cohort
+
+Place the verified UCI CSV at `data/raw/uci489/` or pass an explicit path:
+
+```bash
+uv run parkinsons-voice freeze-cohort \
+  --source data/raw/uci489/ReplicatedAcousticFeatures-ParkinsonDatabase.csv \
+  --output artifacts/m1-cohort
+uv run parkinsons-voice verify-cohort --artifact-dir artifacts/m1-cohort
+```
+
+Source data, row-level manifests, and participant allocations are ignored by
+Git. Only aggregate, non-identifying evidence belongs in tracked documentation.
+
+## Checks
+
+```bash
+scripts/check.sh
+```
+
+## Italian PVS raw-audio pipeline
+
+Raw sustained-vowel audio, as an alternative to the UCI 489 feature-only data. Run from the repo root, in order:
 
 ```sh
-uv sync
 uv run python scripts/00_download.py      # Kaggle download + fixes -> data/raw/italian_pvs/
 uv run python scripts/01_manifest.py      # one row per recording, with person ID -> data/derived/manifest.csv
 uv run python scripts/02_folds.py         # 5 person-level CV folds -> data/derived/folds.csv
@@ -16,7 +47,7 @@ uv run python scripts/03_clean_vowels.py  # 3 s, 16 kHz vowel clips -> data/deri
 
 `data/` is git-ignored.
 
-## Dataset notes
+### Dataset notes
 
 Italian Parkinson's Voice and Speech (Dimauro & Girardi 2019, CC BY 4.0), via [Kaggle](https://www.kaggle.com/datasets/ieeeai/italian-parkinsons-voice-and-speech).
 

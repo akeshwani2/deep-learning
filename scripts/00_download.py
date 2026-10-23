@@ -26,9 +26,12 @@ with urllib.request.urlopen(URL) as response, open(ZIP, "wb") as f:
 with zipfile.ZipFile(ZIP) as z:
     for info in z.infolist():
         parts = info.filename.split("/")
-        if info.is_dir() or parts[0] != "italian_parkinson" or parts[1] == "Italian_Parkinson_s_Voice_and_speech":
+        if info.is_dir() or parts[0] != "italian_parkinson":
             continue
-        if len(parts) > 3 and parts[2] == "17-28" and parts[3].startswith("Nicol") and parts[3] != "Nicola M":
+        if parts[1] == "Italian_Parkinson_s_Voice_and_speech":
+            continue
+        is_nicolo = len(parts) > 3 and parts[3].startswith("Nicol") and parts[3] != "Nicola M"
+        if parts[2] == "17-28" and is_nicolo:
             if "NMIICNOO" in parts[-1]:
                 continue
             parts[3] = "Nicolo C"

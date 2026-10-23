@@ -15,7 +15,8 @@ SEED = 0
 
 people = pd.read_csv(MANIFEST).groupby("person_id", as_index=False)["label"].first()
 people["fold"] = -1
-for fold, (_, test_idx) in enumerate(StratifiedKFold(5, shuffle=True, random_state=SEED).split(people, people.label)):
+splitter = StratifiedKFold(5, shuffle=True, random_state=SEED)
+for fold, (_, test_idx) in enumerate(splitter.split(people, people.label)):
     people.loc[test_idx, "fold"] = fold
 assert (people.fold >= 0).all()
 
