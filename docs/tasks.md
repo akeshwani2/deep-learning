@@ -13,7 +13,7 @@ Priority: **P0** valid result · **P1** complete deliverable · **P2** optional 
 | Milestone | Status | Exit condition |
 |---|---|---|
 | M0 — Governance ready | **Complete (2026-10-22)** | Mode B has a documented CC BY 4.0 data path, repository protections, and an accepted mode decision. Evidence: [governance status](data-access-status.md), [data manifest](data-manifest.md), and [DL-002](decision-log.md#dl-002-select-the-feature-only-operating-mode). |
-| M1 — Cohort frozen | Not started | Manifest, exclusions, counts, and participant allocations/folds pass validation |
+| M1 — Cohort frozen | **Complete (2026-10-22)** | The Mode B manifest, 240-row/80-participant cohort, zero exclusions, and fixed 5x4 grouped folds pass schema, leakage, and provenance validation. Evidence: [M1 cohort report](m1-cohort-report.md). |
 | M2 — Baseline complete | Not started | Linear acoustic/feature baseline produces participant-level validation or out-of-fold predictions |
 | M3 — Comparison complete | Not started | Every required model has frozen artifacts and comparable predictions |
 | M4 — Final evaluation complete | Not started | Participant metrics, uncertainty, figures, and limitations are generated without test leakage |
@@ -26,11 +26,11 @@ Priority: **P0** valid result · **P1** complete deliverable · **P2** optional 
   - Record the non-diagnostic purpose, candidate data modes, and owners.
   - Evidence: [DL-001: Project framing and candidate operating modes](decision-log.md#dl-001-project-framing-and-candidate-operating-modes), dated 2026-10-22.
 
-- [ ] **T0.2 (P0): Establish a reproducible Python environment**
+- [x] **T0.2 (P0): Establish a reproducible Python environment**
   - Select a supported Python version.
   - Pin direct dependencies and capture resolved versions.
   - Include grouped splitting, audio, acoustic feature, deep learning, speech encoder, metric, and plotting libraries only as needed.
-  - Evidence: clean installation and import smoke test.
+  - Evidence: Python 3.12 in [`pyproject.toml`](../pyproject.toml), resolved versions in [`uv.lock`](../uv.lock), and passing clean sync/import checks.
 
 - [x] **T0.3 (P0): Protect data and secrets**
   - Ignore source data, derived audio, participant allocations, tokens, caches, checkpoints, uploads, and local artifacts.
@@ -38,16 +38,16 @@ Priority: **P0** valid result · **P1** complete deliverable · **P2** optional 
   - Verify tracked files contain no restricted data or credentials.
   - Evidence: [repository safety verification](repository-safety.md), `.gitignore`, and `.env.example`.
 
-- [ ] **T0.4 (P0): Create package and command structure**
+- [x] **T0.4 (P0): Create package and command structure**
   - Add modules for data, audio, features, models, training, evaluation, and optional demo code.
   - Add configuration and artifact directories.
   - Keep notebooks for exploration; move reusable logic into modules.
-  - Evidence: package import and command-help smoke tests.
+  - Evidence: [`src/parkinsons_voice`](../src/parkinsons_voice) package structure and passing `parkinsons-voice --help` smoke test.
 
-- [ ] **T0.5 (P0): Add automated quality checks**
+- [x] **T0.5 (P0): Add automated quality checks**
   - Configure tests, formatting/linting, and a minimal CI or local check command.
   - Add synthetic fixtures only; never controlled samples.
-  - Evidence: check command passes in a clean checkout.
+  - Evidence: [`scripts/check.sh`](../scripts/check.sh) performs frozen sync, lint, tests, and command-help smoke testing.
 
 ## 4. Phase 1 — Data access and mode decision
 
@@ -72,21 +72,21 @@ Priority: **P0** valid result · **P1** complete deliverable · **P2** optional 
 
 ## 5. Phase 2 — Shared data and leakage controls
 
-- [ ] **T2.1 (P0): Implement the canonical sample manifest**
+- [x] **T2.1 (P0): Implement the canonical sample manifest**
   - Define fields, types, uniqueness constraints, and non-identifying keys.
   - Separate restricted locators from shareable summaries.
-  - Evidence: schema tests using synthetic rows.
+  - Evidence: [manifest schema and validation report](m1-cohort-report.md#canonical-manifest-schema) plus synthetic schema tests.
 
-- [ ] **T2.2 (P0): Implement fingerprinting and provenance**
+- [x] **T2.2 (P0): Implement fingerprinting and provenance**
   - Fingerprint source metadata, cohort rules, configurations, and derived artifacts.
   - Refuse incompatible cached features or embeddings.
-  - Evidence: cache/provenance tests.
+  - Evidence: [frozen fingerprint inventory](m1-cohort-report.md#frozen-fingerprints) and passing mismatch/tampering tests.
 
-- [ ] **T2.3 (P0): Implement participant-disjointness assertions**
+- [x] **T2.3 (P0): Implement participant-disjointness assertions**
   - Check all partition/fold pairs for overlap.
   - Check derived segments inherit the correct allocation.
   - Make failures fatal.
-  - Evidence: passing and deliberately failing unit tests.
+  - Evidence: [fold validation report](m1-cohort-report.md#frozen-participant-folds) and passing plus deliberately failing overlap/inheritance tests.
 
 - [ ] **T2.4 (P0): Implement train-only transform tests**
   - Encapsulate imputation, scaling, selection, and calibration in fold-aware pipelines.
@@ -149,28 +149,28 @@ Complete only if Mode A is selected.
 
 Complete only if Mode B is selected.
 
-- [ ] **T3B.1 (P0): Retrieve and verify UCI dataset 489**
+- [x] **T3B.1 (P0): Retrieve and verify UCI dataset 489**
   - Record source URL, retrieval date, license, files, and checksums.
   - Confirm expected 240 rows, 80 participants, three repeated `/a/` recordings per person, and class coding using authoritative documentation.
-  - Evidence: data manifest and verification report.
+  - Evidence: [data manifest](data-manifest.md) and [source verification](m1-cohort-report.md#source-verification).
 
-- [ ] **T3B.2 (P0): Implement the UCI adapter**
+- [x] **T3B.2 (P0): Implement the UCI adapter**
   - Map subject ID to participant key, target to label, and rows to sample keys.
   - Exclude identifiers and targets from predictors.
   - Validate numeric columns, missingness, duplicates, and participant label consistency.
-  - Evidence: adapter tests and schema summary.
+  - Evidence: [adapter/schema summary](m1-cohort-report.md#uci-adapter-and-predictors) and passing validation tests.
 
-- [ ] **T3B.3 (P0): Create grouped outer and inner folds**
+- [x] **T3B.3 (P0): Create grouped outer and inner folds**
   - Choose fold count based on class/group feasibility.
   - Stratify by label and group by participant.
   - Persist identical outer folds for every model.
   - Depends on: T3B.2, T2.3.
-  - Evidence: group-disjoint fold report with class counts.
+  - Evidence: [group-disjoint fold report with class counts](m1-cohort-report.md#frozen-participant-folds).
 
-- [ ] **T3B.4 (P0): Freeze the fallback cohort and claims**
+- [x] **T3B.4 (P0): Freeze the fallback cohort and claims**
   - Fingerprint the eligible table and fold allocation.
   - Record that no raw-audio, spectrogram-CNN, or speech-embedding conclusions will be made.
-  - Evidence: cohort summary and report-scope statement.
+  - Evidence: [cohort fingerprints](m1-cohort-report.md#frozen-fingerprints) and [scope statement](m1-cohort-report.md#scope-frozen-with-the-cohort).
 
 ## 8. Phase 4A — Mode A representations
 

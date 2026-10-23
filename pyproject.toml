@@ -1,0 +1,38 @@
+[build-system]
+requires = ["hatchling==1.27.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "parkinsons-voice"
+version = "0.1.0"
+description = "Participant-level Parkinson's-associated voice research pipeline"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "numpy==2.1.3",
+  "pandas==2.2.3",
+  "scikit-learn==1.5.2",
+]
+
+[project.scripts]
+parkinsons-voice = "parkinsons_voice.cli:main"
+
+[dependency-groups]
+dev = [
+  "pytest==8.3.4",
+  "ruff==0.8.4",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/parkinsons_voice"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["B", "E", "F", "I", "UP"]

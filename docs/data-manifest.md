@@ -14,7 +14,7 @@ rows, participant identifiers, restricted locators, or participant allocations.
 | Official source | <https://archive.ics.uci.edu/dataset/489/parkinson+dataset+with+replicated+acoustic+features> |
 | Metadata review date | 2026-10-22 |
 | Dataset version | No explicit version is exposed by the catalog; pinned by DOI and retrieval checksum |
-| Data retrieval date | 2026-10-22 (verification copy in temporary storage; no source data committed) |
+| Data retrieval date | 2026-10-22 (verified durable local copy; no source data committed) |
 | Access class | Public download |
 | License | Creative Commons Attribution 4.0 International (CC BY 4.0) |
 | License text | <https://creativecommons.org/licenses/by/4.0/> |
@@ -25,12 +25,16 @@ rows, participant identifiers, restricted locators, or participant allocations.
 | Local source location | `${PARKINSONS_VOICE_DATA_DIR}/raw/uci489/` (ignored; never commit) |
 | Local derived location | `${PARKINSONS_VOICE_ARTIFACT_DIR}/` (ignored; never commit participant allocations) |
 
-The archive was downloaded from the official UCI static-file endpoint. Aggregate
+The archive was downloaded from the official UCI static-file endpoint. The
+durable ignored source copy reproduced the recorded checksum. Aggregate
 verification found 240 data rows, 48 columns, 80 unique participant IDs, exactly
 three rows per participant, 40 participants with label 0, 40 with label 1, and no
-within-participant label inconsistency. T3B.1 must reproduce these checks when
-the durable local source copy is created. Any mismatch stops ingestion and
+within-participant label inconsistency. The official catalog defines `Status=0`
+as healthy/control and `Status=1` as PD. Any later mismatch stops ingestion and
 requires a manifest update; it must not be silently accepted.
+
+The frozen cohort and allocation fingerprints are recorded in the
+[M1 validation report](m1-cohort-report.md#frozen-fingerprints).
 
 ## Permitted use and redistribution policy
 

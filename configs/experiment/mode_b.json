@@ -1,0 +1,19 @@
+{
+  "study_mode": "feature_only",
+  "dataset_id": "uci-489",
+  "cohort_schema_version": "uci489-v1",
+  "outer_split_artifact": "artifacts/m1-cohort/outer_folds.restricted.csv",
+  "inner_split_artifact": "artifacts/m1-cohort/inner_folds.restricted.csv",
+  "required_models": [
+    "regularized_logistic_regression",
+    "small_mlp"
+  ],
+  "participant_aggregation": "arithmetic_mean",
+  "primary_metric": "participant_auroc",
+  "unsupported_claims": [
+    "raw_audio_performance",
+    "spectrogram_cnn_performance",
+    "pretrained_speech_embedding_performance",
+    "clinical_diagnosis_or_validation"
+  ]
+}
