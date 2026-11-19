@@ -47,6 +47,15 @@ uv run python scripts/03_clean_vowels.py  # 3 s, 16 kHz vowel clips -> data/deri
 
 `data/` is git-ignored.
 
+### Acoustic baseline
+
+```sh
+uv run python scripts/04_acoustic_features.py  # pitch, jitter, shimmer, HNR, MFCC summaries -> data/derived/acoustic_features.csv
+uv run python scripts/05_acoustic_baseline.py  # logistic regression, nested person-level CV -> artifacts/acoustic_baseline/
+```
+
+Each person is scored by a model trained on the other four folds. The imputer, scaler and regularization strength are fitted inside those training folds only, and clip scores are averaged per person before any metric is computed. `artifacts/` is git-ignored.
+
 ### Dataset notes
 
 Italian Parkinson's Voice and Speech (Dimauro & Girardi 2019, CC BY 4.0), via [Kaggle](https://www.kaggle.com/datasets/ieeeai/italian-parkinsons-voice-and-speech).
