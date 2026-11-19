@@ -121,3 +121,8 @@ models/
 *.synctex.gz
 *.toc
 *.vrb
+
+# Source packages and configs that share a name with ignored data/model dirs
+!src/parkinsons_voice/data/
+!src/parkinsons_voice/models/
+!configs/data/

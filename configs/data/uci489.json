@@ -1,0 +1,24 @@
+{
+  "schema_version": "uci489-v1",
+  "dataset_id": "uci-489",
+  "study_mode": "feature_only",
+  "source_url": "https://archive.ics.uci.edu/static/public/489/parkinson+dataset+with+replicated+acoustic+features.zip",
+  "source_file": "ReplicatedAcousticFeatures-ParkinsonDatabase.csv",
+  "archive_sha256": "d82f569bacd50b9f49f6d59e9155a3c318c08e50b137b09423ea5eeed2c92ef5",
+  "source_sha256": "78e41352e0dcab340d5ab3f45ce6b40b805de4c6105ecbecce35b082ef800f91",
+  "expected": {
+    "rows": 240,
+    "participants": 80,
+    "recordings_per_participant": 3,
+    "participant_class_counts": {
+      "0": 40,
+      "1": 40
+    }
+  },
+  "folds": {
+    "algorithm": "sha256_stratified_round_robin_v1",
+    "seed": 2026,
+    "outer_splits": 5,
+    "inner_splits": 4
+  }
+}
