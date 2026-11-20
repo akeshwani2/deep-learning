@@ -33,11 +33,16 @@ def participant_metrics(participants: pd.DataFrame, threshold: float = THRESHOLD
     predicted = participants["score"].to_numpy() >= threshold
     sensitivity = float(predicted[label == 1].mean())
     specificity = float((~predicted[label == 0]).mean())
+    # No predicted positives leaves precision undefined; report 0 as scikit-learn does.
+    precision = float(label[predicted].mean()) if predicted.any() else 0.0
+    denominator = precision + sensitivity
     return {
         "auroc": float(roc_auc_score(label, participants["score"])),
         "balanced_accuracy": (sensitivity + specificity) / 2,
         "sensitivity": sensitivity,
         "specificity": specificity,
+        "precision": precision,
+        "f1": 2 * precision * sensitivity / denominator if denominator else 0.0,
     }
 
 

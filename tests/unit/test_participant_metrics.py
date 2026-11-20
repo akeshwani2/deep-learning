@@ -48,3 +48,28 @@ def test_bootstrap_interval_contains_the_estimate():
     low, high = bootstrap_intervals(people, replicates=200)["auroc"]
 
     assert low <= participant_metrics(people)["auroc"] <= high
+
+
+def test_precision_and_f1_match_hand_calculation() -> None:
+    participants = pd.DataFrame(
+        {
+            "person_id": list("abcde"),
+            "label": [1, 1, 1, 0, 0],
+            "score": [0.9, 0.8, 0.2, 0.7, 0.1],
+        }
+    )
+
+    metrics = participant_metrics(participants)
+
+    # 2 true positives, 1 false positive, 1 false negative.
+    assert metrics["precision"] == pytest.approx(2 / 3)
+    assert metrics["f1"] == pytest.approx(2 / 3)
+
+
+def test_precision_and_f1_are_zero_without_predicted_positives() -> None:
+    participants = pd.DataFrame({"person_id": list("ab"), "label": [1, 0], "score": [0.2, 0.1]})
+
+    metrics = participant_metrics(participants)
+
+    assert metrics["precision"] == 0.0
+    assert metrics["f1"] == 0.0

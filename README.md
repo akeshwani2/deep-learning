@@ -52,9 +52,12 @@ uv run python scripts/03_clean_vowels.py  # 3 s, 16 kHz vowel clips -> data/deri
 ```sh
 uv run python scripts/04_acoustic_features.py  # pitch, jitter, shimmer, HNR, MFCC summaries -> data/derived/acoustic_features.csv
 uv run python scripts/05_acoustic_baseline.py  # logistic regression, nested person-level CV -> artifacts/acoustic_baseline/
+uv run python scripts/06_acoustic_robustness.py  # confound checks -> artifacts/acoustic_baseline/robustness.json
 ```
 
 Each person is scored by a model trained on the other four folds. The imputer, scaler and regularization strength are fitted inside those training folds only, and clip scores are averaged per person before any metric is computed. `artifacts/` is git-ignored.
+
+**The baseline's score is not evidence about voice.** It reaches a person-level AUROC of 0.996, but the same model given only the non-speech background of each raw recording (no voice at all) reaches 0.973 on the 42 people who have enough of it. The healthy and PD groups were recorded under different conditions, and the model can tell the groups apart from that alone. Restricting to the originally-16 kHz recordings does not remove the effect (AUROC 1.000), and shuffled labels fall to chance (mean 0.497), so this is a property of the dataset, not an evaluation leak. Any model trained on these recordings has to be read against the background-only score.
 
 ### Dataset notes
 
