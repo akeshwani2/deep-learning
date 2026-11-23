@@ -119,7 +119,9 @@ def load_uci489(path: str | Path) -> UCI489Data:
         raise UCI489ValidationError("Status must contain only binary labels 0 and 1")
     labels = labels.astype(int)
 
-    duplicates = pd.DataFrame({"participant": participant_ids, "recording": recordings}).duplicated()
+    duplicates = pd.DataFrame(
+        {"participant": participant_ids, "recording": recordings}
+    ).duplicated()
     if duplicates.any():
         raise UCI489ValidationError("duplicate participant/recording rows are not allowed")
 

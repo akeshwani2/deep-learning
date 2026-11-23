@@ -4,9 +4,11 @@ This repository implements a participant-level research comparison of
 Parkinson's-associated voice features. It is not a diagnostic or screening
 product.
 
-The active operating mode is the feature-only fallback using UCI dataset 489.
-The mode decision and its scope are recorded in
-[`docs/decision-log.md`](docs/decision-log.md).
+The reported study is a three-model raw-audio comparison on the Italian
+Parkinson's Voice and Speech dataset; results and limitations are in
+[`docs/final-report.md`](docs/final-report.md). The earlier UCI dataset 489
+feature-only cohort is kept but not used for any reported result. Decisions are
+recorded in [`docs/decision-log.md`](docs/decision-log.md).
 
 ## Setup
 
@@ -58,6 +60,16 @@ uv run python scripts/06_acoustic_robustness.py  # confound checks -> artifacts/
 Each person is scored by a model trained on the other four folds. The imputer, scaler and regularization strength are fitted inside those training folds only, and clip scores are averaged per person before any metric is computed. `artifacts/` is git-ignored.
 
 **The baseline's score is not evidence about voice.** It reaches a person-level AUROC of 0.996, but the same model given only the non-speech background of each raw recording (no voice at all) reaches 0.973 on the 42 people who have enough of it. The healthy and PD groups were recorded under different conditions, and the model can tell the groups apart from that alone. Restricting to the originally-16 kHz recordings does not remove the effect (AUROC 1.000), and shuffled labels fall to chance (mean 0.497), so this is a property of the dataset, not an evaluation leak. Any model trained on these recordings has to be read against the background-only score.
+
+### CNN, wav2vec 2.0 and comparison
+
+```sh
+uv run python scripts/07_cnn.py      # compact log-Mel CNN, early stopping on inner-fold people -> artifacts/cnn/
+uv run python scripts/08_wav2vec.py  # frozen wav2vec 2.0 embeddings + logistic regression, plus background-only control -> artifacts/wav2vec/
+uv run python scripts/09_compare.py  # metrics table, paired AUROC differences, calibration, figure -> artifacts/comparison/
+```
+
+`08` downloads `facebook/wav2vec2-base` (about 360 MB) on first use and caches embeddings in `data/derived/`. Everything runs on CPU in a few minutes.
 
 ### Dataset notes
 

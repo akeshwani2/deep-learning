@@ -19,6 +19,7 @@ import librosa
 import numpy as np
 import pandas as pd
 
+from parkinsons_voice.audio.background import background_samples
 from parkinsons_voice.evaluation.participant import (
     aggregate_participants,
     bootstrap_intervals,
@@ -33,9 +34,6 @@ NATIVE_SR = 16000
 PERMUTATIONS = 20
 VOWELS = Path("data/derived/vowels.csv")
 SR = 16000
-TOP_DB = 30  # same silence threshold as 03_clean_vowels.py
-MARGIN = SR // 10  # also drop 0.1 s around each voiced stretch
-MIN_BACKGROUND = SR // 4
 N_MFCC = 13
 BACKGROUND = [f"background_mfcc{i}" for i in range(N_MFCC)]
 
@@ -76,12 +74,9 @@ def background_features(vowels: pd.DataFrame) -> pd.DataFrame:
     rows = []
     for row in vowels.itertuples():
         samples, _ = librosa.load(row.path, sr=SR)
-        background = np.ones(len(samples), dtype=bool)
-        for start, end in librosa.effects.split(samples, top_db=TOP_DB):
-            background[max(0, start - MARGIN) : end + MARGIN] = False
-        if background.sum() < MIN_BACKGROUND:
+        quiet = background_samples(samples, SR)
+        if quiet is None:
             continue
-        quiet = samples[background] / np.abs(samples).max()
         mfcc = librosa.feature.mfcc(y=quiet, sr=SR, n_mfcc=N_MFCC).mean(axis=1)
         rows.append(
             {"person_id": row.person_id, "label": row.label, "fold": row.fold}

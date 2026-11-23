@@ -154,7 +154,9 @@ def validate_outer_folds(
     if set(expected.index) != set(actual.index):
         missing = sorted(set(expected.index) - set(actual.index))
         extra = sorted(set(actual.index) - set(expected.index))
-        raise SplitValidationError(f"outer participant coverage mismatch; missing={missing}, extra={extra}")
+        raise SplitValidationError(
+            f"outer participant coverage mismatch; missing={missing}, extra={extra}"
+        )
     if not expected.equals(actual):
         raise SplitValidationError("outer allocation labels differ from the manifest")
 
@@ -206,11 +208,15 @@ def validate_inner_folds(
                 f"extra={sorted(actual_train - expected_train)[:3]}"
             )
         if outer_test & actual_train:
-            raise SplitValidationError(f"outer-test participant leaked into inner fold {outer_fold}")
+            raise SplitValidationError(
+                f"outer-test participant leaked into inner fold {outer_fold}"
+            )
         if any(outer_labels[key] != label for key, label in zip(
             context["participant_key"], context["label"], strict=True
         )):
-            raise SplitValidationError(f"inner labels differ from outer labels for fold {outer_fold}")
+            raise SplitValidationError(
+                f"inner labels differ from outer labels for fold {outer_fold}"
+            )
 
         observed_inner = set(context["inner_fold"])
         if observed_inner != set(range(inner_splits)):

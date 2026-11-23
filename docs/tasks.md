@@ -14,10 +14,10 @@ Priority: **P0** valid result · **P1** complete deliverable · **P2** optional 
 |---|---|---|
 | M0 — Governance ready | **Complete (2026-10-22)** | Mode B has a documented CC BY 4.0 data path, repository protections, and an accepted mode decision. Evidence: [governance status](data-access-status.md), [data manifest](data-manifest.md), and [DL-002](decision-log.md#dl-002-select-the-feature-only-operating-mode). |
 | M1 — Cohort frozen | **Complete (2026-10-22)** | The Mode B manifest, 240-row/80-participant cohort, zero exclusions, and fixed 5x4 grouped folds pass schema, leakage, and provenance validation. Evidence: [M1 cohort report](m1-cohort-report.md). |
-| M2 — Baseline complete | Not started | Linear acoustic/feature baseline produces participant-level validation or out-of-fold predictions |
-| M3 — Comparison complete | Not started | Every required model has frozen artifacts and comparable predictions |
-| M4 — Final evaluation complete | Not started | Participant metrics, uncertainty, figures, and limitations are generated without test leakage |
-| M5 — Deliverables ready | Not started | Reproducibility run, report, and conditional demo checks pass |
+| M2 — Baseline complete | **Complete (2026-11-22)**, Italian PVS per [DL-003](decision-log.md#dl-003-switch-to-raw-audio-from-the-italian-pvs-dataset) | Linear acoustic/feature baseline produces participant-level validation or out-of-fold predictions |
+| M3 — Comparison complete | **Complete (2026-11-22)** | Every required model has frozen artifacts and comparable predictions |
+| M4 — Final evaluation complete | **Complete (2026-11-22)**; see [final report](final-report.md) | Participant metrics, uncertainty, figures, and limitations are generated without test leakage |
+| M5 — Deliverables ready | **Report drafted (2026-11-22)**; demo no-go proposed in [DL-005](decision-log.md#dl-005-recording-condition-confound-and-demo-decision), awaiting owner confirmation | Reproducibility run, report, and conditional demo checks pass |
 
 ## 3. Phase 0 — Project foundation
 
@@ -88,7 +88,7 @@ Priority: **P0** valid result · **P1** complete deliverable · **P2** optional 
   - Make failures fatal.
   - Evidence: [fold validation report](m1-cohort-report.md#frozen-participant-folds) and passing plus deliberately failing overlap/inheritance tests.
 
-- [ ] **T2.4 (P0): Implement train-only transform tests**
+- [x] **T2.4 (P0): Implement train-only transform tests**
   - Encapsulate imputation, scaling, selection, and calibration in fold-aware pipelines.
   - Prove held-out rows do not contribute fitted statistics.
   - Evidence: fixture test with intentionally shifted held-out values.
@@ -179,7 +179,7 @@ Complete only if Mode B is selected.
   - Return quality flags and valid lengths.
   - Evidence: tests and aggregate non-identifying QC.
 
-- [ ] **T4A.2 (P0): Implement acoustic feature extraction**
+- [x] **T4A.2 (P0): Implement acoustic feature extraction**
   - Select and pin a maintained library.
   - Extract pitch, jitter, shimmer, harmonic-to-noise ratio, and MFCC summaries.
   - Flag failures and non-finite values.
@@ -191,12 +191,12 @@ Complete only if Mode B is selected.
   - Use training-fitted imputation where valid; never silently drop rows.
   - Evidence: signed decision and reconciled counts.
 
-- [ ] **T4A.4 (P0): Implement log-Mel extraction**
+- [x] **T4A.4 (P0): Implement log-Mel extraction**
   - Fix sample rate, FFT/window/hop, Mel bands, frequency bounds, log transform, and normalization.
   - Verify tensor shape and absence of held-out fitting.
   - Evidence: config, shape tests, and synthetic/permitted visualization.
 
-- [ ] **T4A.5 (P0): Select and integrate the frozen encoder**
+- [x] **T4A.5 (P0): Select and integrate the frozen encoder**
   - Record checkpoint, license, sample rate, library version, and output dimensions.
   - Freeze all encoder parameters and implement mask-aware temporal pooling.
   - Evidence: freeze assertion and embedding-shape test.
@@ -206,7 +206,7 @@ Complete only if Mode B is selected.
   - Key caches by source and preprocessing/checkpoint fingerprints.
   - Evidence: cache hit and invalidation tests.
 
-- [ ] **T4A.7 (P1): Define safe primary augmentation**
+- [x] **T4A.7 (P1): Define safe primary augmentation**
   - Specify gain and mild-noise ranges using training audio only.
   - Keep pitch/time changes outside the primary experiment.
   - Evidence: reviewed config and tests disabling augmentation outside training.
@@ -231,37 +231,37 @@ Complete only if Mode B is selected.
   - Require sample and participant keys in prediction outputs.
   - Evidence: contract tests for each required model.
 
-- [ ] **T5.2 (P0): Implement participant-level development evaluation**
+- [x] **T5.2 (P0): Implement participant-level development evaluation**
   - Aggregate scores with the arithmetic mean.
   - Validate one target per participant.
   - Compute participant AUROC and secondary metrics.
   - Evidence: tests against hand-calculated fixtures.
 
-- [ ] **T5.3 (P0): Predeclare hyperparameter search spaces**
+- [x] **T5.3 (P0): Predeclare hyperparameter search spaces**
   - Keep searches small and appropriate to participant count.
   - Record regularization, architecture, optimization, imbalance, and early-stopping choices.
   - Evidence: versioned experiment configs.
 
 ### Mode A models
 
-- [ ] **T5A.1 (P0): Train the acoustic logistic baseline**
+- [x] **T5A.1 (P0): Train the acoustic logistic baseline**
   - Use training-fitted imputer → scaler → regularized logistic regression.
   - Select regularization on validation participant AUROC.
   - Evidence: artifact, validation predictions, and run metadata.
 
-- [ ] **T5A.2 (P0): Train the compact log-Mel CNN**
+- [x] **T5A.2 (P0): Train the compact log-Mel CNN**
   - Use two or three convolutional blocks, global pooling, and one binary logit.
   - Use binary cross-entropy and early stopping on validation participant AUROC.
   - Record optimizer, batch size, epochs, selected epoch, hardware, and time.
   - Evidence: selected checkpoint and learning curves.
 
-- [ ] **T5A.3 (P0): Train the frozen-embedding linear model**
+- [x] **T5A.3 (P0): Train the frozen-embedding linear model**
   - Assert the encoder remains frozen.
   - Train a regularized linear head over pooled embeddings.
   - Select regularization using validation participants only.
   - Evidence: artifact, freeze assertion, and validation predictions.
 
-- [ ] **T5A.4 (P1): Compare development results and freeze candidates**
+- [x] **T5A.4 (P1): Compare development results and freeze candidates**
   - Confirm common validation coverage or document reconciled exceptions.
   - Review performance, failures, and compute without test access.
   - Freeze one configuration/checkpoint per required model.
@@ -287,35 +287,35 @@ Complete only if Mode B is selected.
 
 ## 11. Phase 6 — Final evaluation and uncertainty
 
-- [ ] **T6.1 (P0): Freeze evaluation protocol**
+- [x] **T6.1 (P0): Freeze evaluation protocol**
   - Record aggregation, metrics, threshold, calibration assessment, uncertainty method, and subgroup criteria.
   - Lock Mode A code/config before test release.
   - Evidence: dated evaluation protocol.
 
-- [ ] **T6.2 (P0): Generate participant prediction tables**
+- [x] **T6.2 (P0): Generate participant prediction tables**
   - Mode A: evaluate each frozen model once on held-out test data.
   - Mode B: pool only outer-held-out predictions.
   - Average source scores per participant and record source count.
   - Evidence: schema-valid tables with matching model coverage.
 
-- [ ] **T6.3 (P0): Compute primary and secondary metrics**
+- [x] **T6.3 (P0): Compute primary and secondary metrics**
   - Calculate AUROC, precision, recall, F1, balanced accuracy, confusion matrix, and sensitivity at the frozen threshold.
   - Report prevalence and participant/recording counts.
   - Evidence: machine-readable metrics and generated table.
 
-- [ ] **T6.4 (P0): Quantify uncertainty**
+- [x] **T6.4 (P0): Quantify uncertainty**
   - Mode A: participant bootstrap intervals and paired model differences.
   - Mode B: participant-aware uncertainty over pooled outer-held-out predictions with small-sample caveats.
   - Record seed, replicate count, interval method, and invalid replicate handling.
   - Evidence: uncertainty artifact and reproducibility test.
 
-- [ ] **T6.5 (P1): Assess calibration and score wording**
+- [x] **T6.5 (P1): Assess calibration and score wording**
   - Use validation or fold-appropriate held-out data without contaminating selection.
   - Generate a reliability view and numeric measure.
   - Decide whether output can be called a probability; default to “model score.”
   - Evidence: calibration artifact and wording decision.
 
-- [ ] **T6.6 (P1): Run conditional subgroup/sensitivity analyses**
+- [x] **T6.6 (P1): Run conditional subgroup/sensitivity analyses**
   - Proceed only with adequate metadata, permissions, and subgroup sizes.
   - Predeclare comparisons and report denominators/uncertainty.
   - Evidence: go/no-go decision and clearly labeled exploratory results if run.
@@ -328,24 +328,24 @@ Complete only if Mode B is selected.
 
 ## 12. Phase 7 — Reporting
 
-- [ ] **T7.1 (P1): Generate cohort flow and summary**
+- [x] **T7.1 (P1): Generate cohort flow and summary**
   - Include source records, exclusions, eligible counts, allocations, durations, prevalence, and permitted metadata coverage.
   - Evidence: generated table/flow tied to cohort artifacts.
 
-- [ ] **T7.2 (P1): Generate model and experiment tables**
+- [x] **T7.2 (P1): Generate model and experiment tables**
   - Include representation, classifier, selected settings, parameter counts where meaningful, training time, versions, and participant coverage.
   - Evidence: tables generated from run metadata.
 
-- [ ] **T7.3 (P1): Write results with bounded claims**
+- [x] **T7.3 (P1): Write results with bounded claims**
   - State selected mode and report measured outcomes with uncertainty.
   - Do not promise superiority, imply diagnosis, or treat cross-dataset differences as architecture effects.
   - Evidence: reviewed results section with metric-source links.
 
-- [ ] **T7.4 (P1): Write limitations and responsible use**
+- [x] **T7.4 (P1): Write limitations and responsible use**
   - Address self-report, label noise, confounding, sustained-vowel scope, repeated measures, sample size, subgroup limits, error harms, and external validity.
   - Evidence: review against proposal and requirements.
 
-- [ ] **T7.5 (P1): Document reproducibility**
+- [x] **T7.5 (P1): Document reproducibility**
   - Provide setup, local data layout, configuration, commands, artifact locations, and controlled-data boundaries.
   - Evidence: clean-environment or independent teammate verification.
 
@@ -358,7 +358,7 @@ Complete only if Mode B is selected.
 
 Start only after M4 and a recorded go/no-go decision.
 
-- [ ] **T8.1 (P1, conditional): Decide whether a demo may ship**
+- [x] **T8.1 (P1, conditional): Decide whether a demo may ship**
   - Review model behavior, data terms, permitted examples, privacy, and schedule.
   - Select a model and define score semantics.
   - Evidence: go/no-go decision; no-go still satisfies the scientific project.
@@ -386,7 +386,7 @@ Start only after M4 and a recorded go/no-go decision.
 
 ## 14. Phase 9 — Final quality gate
 
-- [ ] **T9.1 (P0): Run the full test suite**
+- [x] **T9.1 (P0): Run the full test suite**
   - Include leakage, schema, aggregation, metric, cache, save/load, and report-generation tests.
   - Evidence: passing log tied to final code revision.
 
