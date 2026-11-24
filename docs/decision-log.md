@@ -122,3 +122,91 @@ documented, lawful path without waiting for controlled access.
 - Claims are limited to a comparison of feature-based models on this dataset.
 - All non-diagnostic and responsible-communication constraints from DL-001 remain
   in force.
+
+## DL-003: Switch to raw audio from the Italian PVS dataset
+
+- **Date:** 2026-11-22 (recorded retroactively; the switch is described in the
+  midpoint report)
+- **Status:** Recorded; supersedes the scope limits of DL-002
+- **Owners:** Poorav Rawat and Arhaan Keshwani (joint)
+- **Related work:** T1.3, Phase 3A, Phase 4A, T5A.1 to T5A.4
+
+### Decision
+
+Run the three-model raw-audio comparison (acoustic features with logistic
+regression, a compact log-Mel CNN, and a linear head on frozen wav2vec 2.0
+embeddings) on the Italian Parkinson's Voice and Speech dataset (Dimauro and
+Girardi 2019, CC BY 4.0). UCI 489 is retained only as the frozen M1 cohort and is
+not used for any reported model result.
+
+### Rationale
+
+mPower access was not available in time and UCI 489 releases features without
+audio, so it cannot support the CNN or the speech encoder. Italian PVS has raw
+audio, participant identity in the file names, and a permissive license.
+
+### Consequences
+
+- The cohort is 47 people (22 elderly healthy, 25 PD), so there is no separate
+  test partition. Evaluation is 5-fold participant-grouped cross-validation with
+  all tuning inside each training fold.
+- The healthy and PD groups were recorded under different conditions. DL-005
+  records what that does to the claims.
+
+## DL-004: Model settings and evaluation protocol
+
+- **Date:** 2026-11-22
+- **Status:** Recorded
+- **Owners:** Poorav Rawat and Arhaan Keshwani (joint)
+- **Related work:** T5.3, T6.1, design section 14 items 4 to 10
+
+### Decision
+
+- **Folds:** 5 outer participant folds from `scripts/02_folds.py` (seed 0).
+- **Acoustic features:** Praat pitch (75 to 500 Hz), four jitter and five shimmer
+  measures, harmonics-to-noise ratio; 13 MFCC means and standard deviations.
+- **Linear models:** median imputer, standardizer, class-balanced logistic
+  regression; C from {0.001, 0.01, 0.1, 1, 10} by participant AUROC over 4 inner
+  participant folds, ties to the stronger penalty.
+- **CNN:** 64-band log-Mel (25 ms window, 10 ms hop, 50 to 8000 Hz), per-clip
+  standardization, three conv blocks (16, 32, 64 channels), global average
+  pooling, dropout 0.3, AdamW (learning rate 0.001, weight decay 0.0001), batch
+  32, at most 40 epochs, patience 8 on validation participant AUROC with one
+  inner fold as validation. Training-only gain (+-6 dB) and noise (20 to 40 dB
+  SNR). These values were fixed before the held-out scores were computed and
+  were not changed afterwards.
+- **Encoder:** `facebook/wav2vec2-base` at revision
+  `0b5b8e868dd84f03fd87d01f9c4ff0f080fecfe8` (Apache-2.0), frozen, mean of the
+  last hidden state over all frames.
+- **Aggregation and threshold:** arithmetic mean of clip scores per participant;
+  threshold 0.5, fixed in advance.
+- **Uncertainty:** 2000 participant bootstrap replicates, resampled within class,
+  percentile 95% intervals, seed 0. Model differences use one shared resample.
+- **Calibration:** Brier score and 5-bin expected calibration error on held-out
+  participant scores. No recalibration. Outputs are called model scores, not
+  probabilities.
+
+## DL-005: Recording-condition confound and demo decision
+
+- **Date:** 2026-11-22
+- **Status:** Proposed by the implementation; needs owner confirmation
+- **Owners:** Poorav Rawat and Arhaan Keshwani (joint)
+- **Related work:** T6.6, T7.3, T7.4, T8.1
+
+### Decision
+
+1. Report every model next to a background-only control: the same classifier
+   given only the non-speech part of each raw recording.
+2. Do not claim that any model detects Parkinson's-associated voice patterns in
+   this dataset. The supported claim is that the groups are separable from these
+   recordings and that separability from recording conditions alone is at least
+   as large.
+3. Do not ship the optional demo (no-go for T8.1).
+
+### Rationale
+
+Background-only AUROC is 0.973 (MFCC) and 0.957 (wav2vec 2.0) on the 42 people
+with enough non-speech audio. No voice model exceeds that by a margin its
+interval supports. A demo would present a score that mostly reflects the
+recording setup as if it reflected a voice, which the project's non-diagnostic
+rules do not allow.

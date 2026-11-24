@@ -95,7 +95,9 @@ def _validate_expected_dataset(data: UCI489Data, config: dict[str, Any]) -> None
         if actual != wanted
     }
     if mismatches:
-        raise CohortValidationError(f"source data does not match UCI 489 expectations: {mismatches}")
+        raise CohortValidationError(
+            f"source data does not match UCI 489 expectations: {mismatches}"
+        )
 
 
 def _fold_summary(manifest: pd.DataFrame, outer: pd.DataFrame, inner: pd.DataFrame) -> dict:
@@ -125,7 +127,10 @@ def _fold_summary(manifest: pd.DataFrame, outer: pd.DataFrame, inner: pd.DataFra
             str(inner_fold): {str(label): int(counts.loc[(inner_fold, label)]) for label in (0, 1)}
             for inner_fold in sorted(context["inner_fold"].unique())
         }
-    return {"outer_test_counts": outer_summary, "inner_validation_participant_counts": inner_summary}
+    return {
+        "outer_test_counts": outer_summary,
+        "inner_validation_participant_counts": inner_summary,
+    }
 
 
 def _build_provenance(
